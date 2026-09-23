@@ -1,0 +1,23 @@
+<nav class="navbar">
+  <a href="/" class="navbar-brand">Complaint System</a>
+  <div class="navbar-links">
+    <% if (typeof user !== 'undefined' && user) { %>
+      <% if (user.role === 'student') { %>
+        <a href="/student/dashboard">Dashboard</a>
+        <a href="/student/complaints/new">Submit Complaint</a>
+        <a href="/student/complaints">My Complaints</a>
+      <% } else if (user.role === 'admin') { %>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/complaints">All Complaints</a>
+      <% } %>
+      <span class="navbar-user">Hi, <%= user.full_name %></span>
+      <form action="/logout" method="POST" class="navbar-logout">
+        <button type="submit">Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/login">Student Login</a>
+      <a href="/admin/login">Admin Login</a>
+      <a href="/register">Register</a>
+    <% } %>
+  </div>
+</nav>
