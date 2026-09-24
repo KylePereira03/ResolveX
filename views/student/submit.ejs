@@ -1,0 +1,33 @@
+<%- include('../partials/header', { title: 'Submit Complaint' }) %>
+<%- include('../partials/messages', { message: typeof message !== 'undefined' ? message : null }) %>
+
+<h1>Submit a Complaint</h1>
+
+<form action="/student/complaints" method="POST">
+  <div class="form-group">
+    <label for="category_id">Category</label>
+    <select id="category_id" name="category_id" required>
+      <option value="">-- Select a category --</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat.id %>" <%= (typeof formData !== 'undefined' && formData.category_id == cat.id) ? 'selected' : '' %>>
+          <%= cat.name %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="title">Title</label>
+    <input type="text" id="title" name="title" maxlength="200"
+      value="<%= typeof formData !== 'undefined' ? formData.title : '' %>" required>
+  </div>
+
+  <div class="form-group">
+    <label for="description">Description</label>
+    <textarea id="description" name="description" rows="6" required><%= typeof formData !== 'undefined' ? formData.description : '' %></textarea>
+  </div>
+
+  <button type="submit" class="btn">Submit Complaint</button>
+</form>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,26 @@
+<%- include('../partials/header', { title: 'Complaint #' + complaint.id }) %>
+
+<% if (typeof submitted !== 'undefined' && submitted) { %>
+  <div class="alert alert-success">Your complaint was submitted successfully.</div>
+<% } %>
+
+<h1><%= complaint.title %></h1>
+
+<p>
+  <span class="status-badge status-<%= complaint.status.toLowerCase().replace(/ /g, '-') %>">
+    <%= complaint.status %>
+  </span>
+</p>
+
+<table>
+  <tr><th>Complaint ID</th><td>#<%= complaint.id %></td></tr>
+  <tr><th>Category</th><td><%= complaint.category_name %></td></tr>
+  <tr><th>Description</th><td><%= complaint.description %></td></tr>
+  <tr><th>Submitted</th><td><%= complaint.created_at.toLocaleString() %></td></tr>
+  <tr><th>Last Updated</th><td><%= complaint.updated_at.toLocaleString() %></td></tr>
+  <tr><th>Admin Response</th><td><%= complaint.admin_response || 'No response yet.' %></td></tr>
+</table>
+
+<p><a href="/student/complaints" class="btn">Back to My Complaints</a></p>
+
+<%- include('../partials/footer') %>
