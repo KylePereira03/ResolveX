@@ -1,13 +1,9 @@
-<%- include('../partials/header', { title: 'Login' }) %>
+<%- include('../partials/header', { title: 'Admin Login' }) %>
 <%- include('../partials/messages', { message: typeof message !== 'undefined' ? message : null }) %>
 
-<h1>Student Login</h1>
+<h1>Admin Login</h1>
 
-<% if (typeof registered !== 'undefined' && registered) { %>
-  <div class="alert alert-success">Registration successful! You can log in below.</div>
-<% } %>
-
-<form action="/login" method="POST">
+<form action="/admin/login" method="POST">
   <div class="form-group">
     <label for="email">Email</label>
     <input type="email" id="email" name="email" value="<%= typeof formData !== 'undefined' ? formData.email : '' %>" required>
@@ -18,9 +14,7 @@
     <input type="password" id="password" name="password" required>
   </div>
 
-  <button type="submit" class="btn">Login</button>
+  <button type="submit" class="btn">Login as Admin</button>
 </form>
-
-<p>Don't have an account? <a href="/register">Register here</a></p>
 
 <%- include('../partials/footer') %>
