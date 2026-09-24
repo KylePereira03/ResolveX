@@ -1,0 +1,9 @@
+<%- include('../partials/header', { title: 'Login' }) %>
+
+<h1>Student Login</h1>
+<p>(Real login form coming in Milestone 4.)</p>
+<% if (typeof registered !== 'undefined' && registered) { %>
+  <div class="alert alert-success">Registration successful! You can log in once the login page is built.</div>
+<% } %>
+
+<%- include('../partials/footer') %>
