@@ -5,11 +5,45 @@ const router = express.Router();
 
 router.use(requireStudent);
 
-router.get('/dashboard', (req, res) => {
-  res.render('student/dashboard-placeholder');
+// Dashboard — counts by status + recent complaints
+router.get('/dashboard', async (req, res) => {
+  const studentId = req.session.user.id;
+
+  try {
+    const countsResult = await pool.query(
+      `SELECT status, COUNT(*) AS count
+       FROM complaints
+       WHERE student_id = $1
+       GROUP BY status`,
+      [studentId]
+    );
+
+    // Turn [{status: 'Submitted', count: '2'}, ...] into { Submitted: 2, ... }
+    const counts = {};
+    countsResult.rows.forEach(row => {
+      counts[row.status] = parseInt(row.count, 10);
+    });
+
+    const recentResult = await pool.query(
+      `SELECT id, title, status
+       FROM complaints
+       WHERE student_id = $1
+       ORDER BY created_at DESC
+       LIMIT 5`,
+      [studentId]
+    );
+
+    res.render('student/dashboard', {
+      counts,
+      recentComplaints: recentResult.rows,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { title: 'Error', message: 'Could not load the dashboard.' });
+  }
 });
 
-// Show the submit-complaint form
+// Submit-complaint form (unchanged from Milestone 6)
 router.get('/complaints/new', async (req, res) => {
   try {
     const categories = await pool.query('SELECT id, name FROM categories WHERE active = true ORDER BY name');
@@ -20,7 +54,6 @@ router.get('/complaints/new', async (req, res) => {
   }
 });
 
-// Handle the submission
 router.post('/complaints', async (req, res) => {
   const { category_id, title, description } = req.body;
   const studentId = req.session.user.id;
@@ -35,7 +68,6 @@ router.post('/complaints', async (req, res) => {
   }
 
   try {
-    // Insert the complaint (status defaults to 'Submitted' from the schema)
     const result = await pool.query(
       `INSERT INTO complaints (student_id, category_id, title, description)
        VALUES ($1, $2, $3, $4)
@@ -45,7 +77,6 @@ router.post('/complaints', async (req, res) => {
 
     const newComplaint = result.rows[0];
 
-    // Record the first history entry
     await pool.query(
       `INSERT INTO complaint_history (complaint_id, changed_by, old_status, new_status, comment)
        VALUES ($1, $2, NULL, $3, 'Complaint submitted by student.')`,
@@ -64,12 +95,28 @@ router.post('/complaints', async (req, res) => {
   }
 });
 
-// Temporary — real "My Complaints" list comes in Milestone 7
-router.get('/complaints', (req, res) => {
-  res.send('My Complaints list — coming in Milestone 7. <a href="/student/dashboard">Back</a>');
+// My Complaints — real version
+router.get('/complaints', async (req, res) => {
+  const studentId = req.session.user.id;
+
+  try {
+    const result = await pool.query(
+      `SELECT c.id, c.title, c.status, c.created_at, cat.name AS category_name
+       FROM complaints c
+       JOIN categories cat ON cat.id = c.category_id
+       WHERE c.student_id = $1
+       ORDER BY c.created_at DESC`,
+      [studentId]
+    );
+
+    res.render('student/my-complaints', { complaints: result.rows });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { title: 'Error', message: 'Could not load your complaints.' });
+  }
 });
 
-// View a single complaint (must belong to the logged-in student)
+// Complaint details (unchanged from Milestone 6)
 router.get('/complaints/:id', async (req, res) => {
   const studentId = req.session.user.id;
   const complaintId = req.params.id;
