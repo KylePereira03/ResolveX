@@ -1,0 +1,50 @@
+<%- include('../partials/header', { title: 'Complaint #' + complaint.id }) %>
+
+<h1><%= complaint.title %></h1>
+
+<p>
+  <span class="status-badge status-<%= complaint.status.toLowerCase().replace(/ /g, '-') %>">
+    <%= complaint.status %>
+  </span>
+</p>
+
+<table>
+  <tr><th>Complaint ID</th><td>#<%= complaint.id %></td></tr>
+  <tr><th>Student</th><td><%= complaint.student_name %> (<%= complaint.student_email %>, ID: <%= complaint.student_id_number %>)</td></tr>
+  <tr><th>Category</th><td><%= complaint.category_name %></td></tr>
+  <tr><th>Description</th><td><%= complaint.description %></td></tr>
+  <tr>
+    <th>Attachment</th>
+    <td>
+      <% if (complaint.attachment_path) { %>
+        <a href="/admin/complaints/<%= complaint.id %>/attachment"><%= complaint.attachment_original_name %></a>
+      <% } else { %>
+        No attachment.
+      <% } %>
+    </td>
+  </tr>
+  <tr><th>Submitted</th><td><%= complaint.created_at.toLocaleString() %></td></tr>
+  <tr><th>Last Updated</th><td><%= complaint.updated_at.toLocaleString() %></td></tr>
+  <tr><th>Admin Response</th><td><%= complaint.admin_response || 'No response yet.' %></td></tr>
+</table>
+
+<h2>History</h2>
+<table>
+  <thead>
+    <tr><th>Date</th><th>Changed By</th><th>Status Change</th><th>Comment</th></tr>
+  </thead>
+  <tbody>
+    <% history.forEach(h => { %>
+      <tr>
+        <td><%= h.created_at.toLocaleString() %></td>
+        <td><%= h.changed_by_name %></td>
+        <td><%= h.old_status ? h.old_status + ' → ' + h.new_status : h.new_status + ' (created)' %></td>
+        <td><%= h.comment || '—' %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<p><a href="/admin/complaints" class="btn">Back to All Complaints</a></p>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,66 @@
+<%- include('../partials/header', { title: 'All Complaints' }) %>
+
+<h1>All Complaints</h1>
+
+<form action="/admin/complaints" method="GET" class="filter-form">
+  <div class="form-group">
+    <label for="search">Search (title)</label>
+    <input type="text" id="search" name="search" value="<%= filters.search %>">
+  </div>
+
+  <div class="form-group">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">All</option>
+      <% ['Submitted', 'Under Review', 'In Progress', 'Resolved'].forEach(s => { %>
+        <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="category_id">Category</label>
+    <select id="category_id" name="category_id">
+      <option value="">All</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat.id %>" <%= filters.category_id == cat.id ? 'selected' : '' %>><%= cat.name %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <button type="submit" class="btn">Apply Filters</button>
+  <a href="/admin/complaints">Clear</a>
+</form>
+
+<p><%= complaints.length %> complaint(s) found.</p>
+
+<% if (complaints.length === 0) { %>
+  <p>No complaints match your filters.</p>
+<% } else { %>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Title</th><th>Student</th><th>Category</th><th>Status</th><th>Submitted</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% complaints.forEach(c => { %>
+        <tr>
+          <td>#<%= c.id %></td>
+          <td><%= c.title %></td>
+          <td><%= c.student_name %></td>
+          <td><%= c.category_name %></td>
+          <td>
+            <span class="status-badge status-<%= c.status.toLowerCase().replace(/ /g, '-') %>">
+              <%= c.status %>
+            </span>
+          </td>
+          <td><%= c.created_at.toLocaleDateString() %></td>
+          <td><a href="/admin/complaints/<%= c.id %>">View</a></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+<% } %>
+
+<%- include('../partials/footer') %>

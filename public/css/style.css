@@ -177,3 +177,19 @@ th, td {
   font-weight: 700;
   color: #2563eb;
 }
+
+.filter-form {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  background: white;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.filter-form .form-group {
+  margin-bottom: 0;
+  min-width: 160px;
+}
