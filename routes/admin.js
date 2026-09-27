@@ -110,10 +110,60 @@ router.get('/complaints/:id', async (req, res) => {
     res.render('admin/complaint-details', {
       complaint: complaintResult.rows[0],
       history: historyResult.rows,
+      message: req.query.updated === '1' ? { type: 'success', text: 'Complaint updated successfully.' } : null,
     });
   } catch (err) {
     console.error(err);
     res.status(500).render('error', { title: 'Error', message: 'Could not load the complaint.' });
+  }
+});
+
+// Update status and/or response
+router.post('/complaints/:id/update', async (req, res) => {
+  const complaintId = req.params.id;
+  const adminId = req.session.user.id;
+  const { status, admin_response } = req.body;
+
+  const validStatuses = ['Submitted', 'Under Review', 'In Progress', 'Resolved'];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).render('error', { title: 'Invalid Status', message: 'That status is not recognized.' });
+  }
+
+  try {
+    // Get the current status first, so we know if it's actually changing
+    const current = await pool.query('SELECT status FROM complaints WHERE id = $1', [complaintId]);
+
+    if (current.rows.length === 0) {
+      return res.status(404).render('error', { title: 'Not Found', message: 'That complaint does not exist.' });
+    }
+
+    const oldStatus = current.rows[0].status;
+
+    // Update the complaint itself
+    await pool.query(
+      `UPDATE complaints
+       SET status = $1, admin_response = $2, updated_at = NOW()
+       WHERE id = $3`,
+      [status, admin_response || null, complaintId]
+    );
+
+    // Record this change in history — even if only the response changed, not the status
+    await pool.query(
+      `INSERT INTO complaint_history (complaint_id, changed_by, old_status, new_status, comment)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        complaintId,
+        adminId,
+        oldStatus,
+        status,
+        admin_response ? admin_response : (oldStatus === status ? 'Response updated.' : 'Status updated.'),
+      ]
+    );
+
+    res.redirect(`/admin/complaints/${complaintId}?updated=1`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { title: 'Error', message: 'Could not update the complaint.' });
   }
 });
 

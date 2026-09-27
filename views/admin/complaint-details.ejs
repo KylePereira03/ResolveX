@@ -45,6 +45,27 @@
   </tbody>
 </table>
 
+<h2>Update This Complaint</h2>
+<%- include('../partials/messages', { message: typeof message !== 'undefined' ? message : null }) %>
+
+<form action="/admin/complaints/<%= complaint.id %>/update" method="POST">
+  <div class="form-group">
+    <label for="status">Status</label>
+    <select id="status" name="status" required>
+      <% ['Submitted', 'Under Review', 'In Progress', 'Resolved'].forEach(s => { %>
+        <option value="<%= s %>" <%= complaint.status === s ? 'selected' : '' %>><%= s %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="admin_response">Admin Response</label>
+    <textarea id="admin_response" name="admin_response" rows="4"><%= complaint.admin_response || '' %></textarea>
+  </div>
+
+  <button type="submit" class="btn">Save Update</button>
+</form>
+
 <p><a href="/admin/complaints" class="btn">Back to All Complaints</a></p>
 
 <%- include('../partials/footer') %>
