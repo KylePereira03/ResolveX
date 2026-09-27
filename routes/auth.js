@@ -11,7 +11,8 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-  const { full_name, email, student_id_number, password, confirm_password } = req.body;
+  const { full_name, email: rawEmail, student_id_number, password, confirm_password } = req.body;
+  const email = rawEmail.trim().toLowerCase();
 
   if (!full_name || !email || !student_id_number || !password || !confirm_password) {
     return res.render('auth/register', {
@@ -65,7 +66,8 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email: rawEmail, password } = req.body;
+  const email = rawEmail.trim().toLowerCase();
 
   if (!email || !password) {
     return res.render('auth/login', {
@@ -122,7 +124,8 @@ router.get('/admin/login', (req, res) => {
 });
 
 router.post('/admin/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email: rawEmail, password } = req.body;
+  const email = rawEmail.trim().toLowerCase();
 
   if (!email || !password) {
     return res.render('auth/admin-login', {

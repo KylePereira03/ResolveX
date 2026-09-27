@@ -35,15 +35,15 @@
     <tbody>
       <% recentComplaints.forEach(c => { %>
         <tr>
-          <td>#<%= c.id %></td>
-          <td><%= c.title %></td>
-          <td><%= c.student_name %></td>
-          <td>
+          <td data-label="ID">#<%= c.id %></td>
+          <td data-label="Title"><%= c.title %></td>
+          <td data-label="Student"><%= c.student_name %></td>
+          <td data-label="Status">
             <span class="status-badge status-<%= c.status.toLowerCase().replace(/ /g, '-') %>">
               <%= c.status %>
             </span>
           </td>
-          <td><a href="/admin/complaints/<%= c.id %>">View</a></td>
+          <td data-label=""><a href="/admin/complaints/<%= c.id %>">View</a></td>
         </tr>
       <% }) %>
     </tbody>

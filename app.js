@@ -42,6 +42,23 @@ app.get('/', (req, res) => {
   res.render('home');
 });
 
+// Catch-all for unmatched routes — must be LAST
+app.use((req, res) => {
+  res.status(404).render('error', {
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist.',
+  });
+});
+
+// Global error handler — catches anything that slipped through
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).render('error', {
+    title: 'Something Went Wrong',
+    message: 'An unexpected error occurred. Please try again.',
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });

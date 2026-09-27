@@ -19,16 +19,16 @@
     <tbody>
       <% complaints.forEach(c => { %>
         <tr>
-          <td>#<%= c.id %></td>
-          <td><%= c.title %></td>
-          <td><%= c.category_name %></td>
-          <td>
+          <td data-label="ID">#<%= c.id %></td>
+          <td data-label="Title"><%= c.title %></td>
+          <td data-label="Category"><%= c.category_name %></td>
+          <td data-label="Status">
             <span class="status-badge status-<%= c.status.toLowerCase().replace(/ /g, '-') %>">
               <%= c.status %>
             </span>
           </td>
-          <td><%= c.created_at.toLocaleDateString() %></td>
-          <td><a href="/student/complaints/<%= c.id %>">View</a></td>
+          <td data-label="Submitted"><%= c.created_at.toLocaleDateString() %></td>
+          <td data-label=""><a href="/student/complaints/<%= c.id %>">View</a></td>
         </tr>
       <% }) %>
     </tbody>

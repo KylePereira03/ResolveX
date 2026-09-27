@@ -66,7 +66,9 @@ router.post('/complaints', (req, res, next) => {
     next();
   });
 }, async (req, res) => {
-  const { category_id, title, description } = req.body;
+  const { category_id, title: rawTitle, description: rawDescription } = req.body;
+  const title = rawTitle.trim();
+  const description = rawDescription.trim();
   const studentId = req.session.user.id;
 
   if (!category_id || !title || !description) {

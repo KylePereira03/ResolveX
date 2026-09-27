@@ -36,10 +36,10 @@
   <tbody>
     <% history.forEach(h => { %>
       <tr>
-        <td><%= h.created_at.toLocaleString() %></td>
-        <td><%= h.changed_by_name %></td>
-        <td><%= h.old_status ? h.old_status + ' → ' + h.new_status : h.new_status + ' (created)' %></td>
-        <td><%= h.comment || '—' %></td>
+        <td data-label="Date"><%= h.created_at.toLocaleString() %></td>
+        <td data-label="Changed By"><%= h.changed_by_name %></td>
+        <td data-label="Status Change"><%= h.old_status ? h.old_status + ' → ' + h.new_status : h.new_status + ' (created)' %></td>
+        <td data-label="Comment"><%= h.comment || '—' %></td>
       </tr>
     <% }) %>
   </tbody>

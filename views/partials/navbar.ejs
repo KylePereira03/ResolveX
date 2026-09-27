@@ -11,7 +11,7 @@
         <a href="/admin/complaints">All Complaints</a>
       <% } %>
       <span class="navbar-user">Hi, <%= user.full_name %></span>
-      <form action="/logout" method="POST" class="navbar-logout">
+      <form action="/logout" method="POST" class="navbar-logout" onsubmit="return confirm('Are you sure you want to log out?');">
         <button type="submit">Logout</button>
       </form>
     <% } else { %>
