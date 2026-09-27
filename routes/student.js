@@ -1,6 +1,9 @@
 const express = require('express');
 const { requireStudent } = require('../middleware/auth');
 const pool = require('../db');
+const upload = require('../middleware/upload');
+const fs = require('fs');
+const path = require('path');
 const router = express.Router();
 
 router.use(requireStudent);
@@ -54,25 +57,33 @@ router.get('/complaints/new', async (req, res) => {
   }
 });
 
-router.post('/complaints', async (req, res) => {
+router.post('/complaints', (req, res, next) => {
+  upload.single('attachment')(req, res, (err) => {
+    if (err) {
+      // Multer errors (wrong type, too large) land here
+      return renderSubmitError(req, res, err.message);
+    }
+    next();
+  });
+}, async (req, res) => {
   const { category_id, title, description } = req.body;
   const studentId = req.session.user.id;
 
   if (!category_id || !title || !description) {
-    const categories = await pool.query('SELECT id, name FROM categories WHERE active = true ORDER BY name');
-    return res.render('student/submit', {
-      categories: categories.rows,
-      message: { type: 'error', text: 'All fields are required.' },
-      formData: req.body,
-    });
+    // Clean up an uploaded file if the rest of the form is invalid
+    if (req.file) fs.unlinkSync(req.file.path);
+    return renderSubmitError(req, res, 'All fields are required.');
   }
 
   try {
+    const attachmentPath = req.file ? req.file.filename : null;
+    const attachmentOriginalName = req.file ? req.file.originalname : null;
+
     const result = await pool.query(
-      `INSERT INTO complaints (student_id, category_id, title, description)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO complaints (student_id, category_id, title, description, attachment_path, attachment_original_name)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, status`,
-      [studentId, category_id, title, description]
+      [studentId, category_id, title, description, attachmentPath, attachmentOriginalName]
     );
 
     const newComplaint = result.rows[0];
@@ -86,14 +97,20 @@ router.post('/complaints', async (req, res) => {
     res.redirect(`/student/complaints/${newComplaint.id}?submitted=1`);
   } catch (err) {
     console.error(err);
-    const categories = await pool.query('SELECT id, name FROM categories WHERE active = true ORDER BY name');
-    res.status(500).render('student/submit', {
-      categories: categories.rows,
-      message: { type: 'error', text: 'Something went wrong. Please try again.' },
-      formData: req.body,
-    });
+    if (req.file) fs.unlinkSync(req.file.path);
+    renderSubmitError(req, res, 'Something went wrong. Please try again.');
   }
 });
+
+// Small helper to avoid repeating the categories re-fetch + render in every error branch
+async function renderSubmitError(req, res, text) {
+  const categories = await pool.query('SELECT id, name FROM categories WHERE active = true ORDER BY name');
+  res.render('student/submit', {
+    categories: categories.rows,
+    message: { type: 'error', text },
+    formData: req.body,
+  });
+}
 
 // My Complaints — real version
 router.get('/complaints', async (req, res) => {
@@ -144,6 +161,36 @@ router.get('/complaints/:id', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).render('error', { title: 'Error', message: 'Could not load the complaint.' });
+  }
+});
+
+// Download an attachment — only if it belongs to the logged-in student
+router.get('/complaints/:id/attachment', async (req, res) => {
+  const studentId = req.session.user.id;
+  const complaintId = req.params.id;
+
+  try {
+    const result = await pool.query(
+      `SELECT attachment_path, attachment_original_name
+       FROM complaints
+       WHERE id = $1 AND student_id = $2`,
+      [complaintId, studentId]
+    );
+
+    if (result.rows.length === 0 || !result.rows[0].attachment_path) {
+      return res.status(404).render('error', {
+        title: 'Not Found',
+        message: 'No attachment found for that complaint.',
+      });
+    }
+
+    const { attachment_path, attachment_original_name } = result.rows[0];
+    const fullPath = path.join(__dirname, '..', 'uploads', attachment_path);
+
+    res.download(fullPath, attachment_original_name);
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { title: 'Error', message: 'Could not download the file.' });
   }
 });
 

@@ -3,7 +3,7 @@
 
 <h1>Submit a Complaint</h1>
 
-<form action="/student/complaints" method="POST">
+<form action="/student/complaints" method="POST" enctype="multipart/form-data">
   <div class="form-group">
     <label for="category_id">Category</label>
     <select id="category_id" name="category_id" required>
@@ -25,6 +25,11 @@
   <div class="form-group">
     <label for="description">Description</label>
     <textarea id="description" name="description" rows="6" required><%= typeof formData !== 'undefined' ? formData.description : '' %></textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="attachment">Attachment (optional — JPG, PNG, PDF, or Word, max 5MB)</label>
+    <input type="file" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
   </div>
 
   <button type="submit" class="btn">Submit Complaint</button>

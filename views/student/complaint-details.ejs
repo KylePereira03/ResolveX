@@ -16,6 +16,16 @@
   <tr><th>Complaint ID</th><td>#<%= complaint.id %></td></tr>
   <tr><th>Category</th><td><%= complaint.category_name %></td></tr>
   <tr><th>Description</th><td><%= complaint.description %></td></tr>
+  <tr>
+    <th>Attachment</th>
+    <td>
+      <% if (complaint.attachment_path) { %>
+        <a href="/student/complaints/<%= complaint.id %>/attachment"><%= complaint.attachment_original_name %></a>
+      <% } else { %>
+        No attachment.
+      <% } %>
+    </td>
+  </tr>
   <tr><th>Submitted</th><td><%= complaint.created_at.toLocaleString() %></td></tr>
   <tr><th>Last Updated</th><td><%= complaint.updated_at.toLocaleString() %></td></tr>
   <tr><th>Admin Response</th><td><%= complaint.admin_response || 'No response yet.' %></td></tr>
