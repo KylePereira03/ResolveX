@@ -1,6 +1,33 @@
-<%- include('partials/header', { title: 'Home' }) %>
+<%- include('partials/header', { title: 'Complaint Management System' }) %>
 
-<h1>Welcome to the Complaint Management System</h1>
-<p>This is a temporary home page to confirm our layout works.</p>
+<div class="hero">
+  <h1>Raise it. Track it. Get it resolved.</h1>
+  <p class="hero-sub">
+    A single place to submit complaints to the college administration —
+    academics, infrastructure, hostel, IT, and more — and follow their
+    progress through to resolution.
+  </p>
+  <div class="hero-actions">
+    <a href="/register" class="btn">Register as a Student</a>
+    <a href="/login">Already have an account? Log in</a>
+  </div>
+</div>
+
+<div class="hero-grid">
+  <div class="hero-card">
+    <h3>Submit</h3>
+    <p>Pick a category, describe the issue, and attach a photo or document if it helps.</p>
+  </div>
+  <div class="hero-card">
+    <h3>Track</h3>
+    <p>Every complaint moves through Submitted, Under Review, In Progress, and Resolved.</p>
+  </div>
+  <div class="hero-card">
+    <h3>Hear back</h3>
+    <p>Administrators respond directly on your complaint, so you always know where things stand.</p>
+  </div>
+</div>
+
+<p class="admin-link">Administrator? <a href="/admin/login">Log in here</a>.</p>
 
 <%- include('partials/footer') %>

@@ -39,6 +39,12 @@ app.use('/student', studentRoutes);
 app.use('/admin', adminRoutes);
 
 app.get('/', (req, res) => {
+  if (req.session.user) {
+    if (req.session.user.role === 'admin') {
+      return res.redirect('/admin/dashboard');
+    }
+    return res.redirect('/student/dashboard');
+  }
   res.render('home');
 });
 
