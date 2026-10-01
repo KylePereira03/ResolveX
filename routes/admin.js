@@ -107,14 +107,53 @@ router.get('/complaints/:id', async (req, res) => {
       [complaintId]
     );
 
+    const commentsResult = await pool.query(
+      `SELECT c.*, u.full_name AS author_name
+       FROM comments c
+       JOIN users u ON u.id = c.author_id
+       WHERE c.complaint_id = $1
+       ORDER BY c.created_at ASC`,
+      [complaintId]
+    );
+
     res.render('admin/complaint-details', {
       complaint: complaintResult.rows[0],
       history: historyResult.rows,
+      comments: commentsResult.rows,
       message: req.query.updated === '1' ? { type: 'success', text: 'Complaint updated successfully.' } : null,
     });
   } catch (err) {
     console.error(err);
     res.status(500).render('error', { title: 'Error', message: 'Could not load the complaint.' });
+  }
+});
+
+// Post a comment as admin
+router.post('/complaints/:id/comments', async (req, res) => {
+  const adminId = req.session.user.id;
+  const complaintId = req.params.id;
+  const message = req.body.message ? req.body.message.trim().slice(0, 1000) : '';
+
+  if (!message) {
+    return res.redirect(`/admin/complaints/${complaintId}`);
+  }
+
+  try {
+    const exists = await pool.query('SELECT id FROM complaints WHERE id = $1', [complaintId]);
+    if (exists.rows.length === 0) {
+      return res.status(404).render('error', { title: 'Not Found', message: 'That complaint does not exist.' });
+    }
+
+    await pool.query(
+      `INSERT INTO comments (complaint_id, author_id, author_role, message)
+       VALUES ($1, $2, 'admin', $3)`,
+      [complaintId, adminId, message]
+    );
+
+    res.redirect(`/admin/complaints/${complaintId}#comment-list`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { title: 'Error', message: 'Could not post your comment.' });
   }
 });
 

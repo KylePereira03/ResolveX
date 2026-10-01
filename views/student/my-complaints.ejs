@@ -3,7 +3,10 @@
 <h1>My Complaints</h1>
 
 <% if (complaints.length === 0) { %>
-  <p>You haven't submitted any complaints yet. <a href="/student/complaints/new">Submit one now</a>.</p>
+  <div class="empty-state">
+    <p>You haven't submitted any complaints yet.</p>
+    <p><a href="/student/complaints/new" class="btn" style="margin-top: 12px;">Submit your first complaint</a></p>
+  </div>
 <% } else { %>
   <table>
     <thead>

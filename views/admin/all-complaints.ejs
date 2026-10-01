@@ -29,13 +29,15 @@
   </div>
 
   <button type="submit" class="btn">Apply Filters</button>
-  <a href="/admin/complaints">Clear</a>
+  <a href="/admin/complaints" class="btn-secondary">Clear Filters</a>
 </form>
 
 <p><%= complaints.length %> complaint(s) found.</p>
 
 <% if (complaints.length === 0) { %>
-  <p>No complaints match your filters.</p>
+  <div class="empty-state">
+    <p>No complaints match your filters. Try adjusting or clearing them above.</p>
+  </div>
 <% } else { %>
   <table>
     <thead>

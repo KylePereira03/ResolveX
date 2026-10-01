@@ -156,13 +156,57 @@ router.get('/complaints/:id', async (req, res) => {
       });
     }
 
+    const commentsResult = await pool.query(
+      `SELECT c.*, u.full_name AS author_name
+       FROM comments c
+       JOIN users u ON u.id = c.author_id
+       WHERE c.complaint_id = $1
+       ORDER BY c.created_at ASC`,
+      [complaintId]
+    );
+
     res.render('student/complaint-details', {
       complaint: result.rows[0],
+      comments: commentsResult.rows,
       submitted: req.query.submitted === '1',
     });
   } catch (err) {
     console.error(err);
     res.status(500).render('error', { title: 'Error', message: 'Could not load the complaint.' });
+  }
+});
+
+// Post a comment on my own complaint
+router.post('/complaints/:id/comments', async (req, res) => {
+  const studentId = req.session.user.id;
+  const complaintId = req.params.id;
+  const message = req.body.message ? req.body.message.trim().slice(0, 1000) : '';
+
+  if (!message) {
+    return res.redirect(`/student/complaints/${complaintId}`);
+  }
+
+  try {
+    // Confirm this complaint actually belongs to this student before allowing a comment
+    const ownsIt = await pool.query(
+      'SELECT id FROM complaints WHERE id = $1 AND student_id = $2',
+      [complaintId, studentId]
+    );
+
+    if (ownsIt.rows.length === 0) {
+      return res.status(404).render('error', { title: 'Not Found', message: 'That complaint does not exist or does not belong to you.' });
+    }
+
+    await pool.query(
+      `INSERT INTO comments (complaint_id, author_id, author_role, message)
+       VALUES ($1, $2, 'student', $3)`,
+      [complaintId, studentId, message]
+    );
+
+    res.redirect(`/student/complaints/${complaintId}#comment-list`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { title: 'Error', message: 'Could not post your comment.' });
   }
 });
 

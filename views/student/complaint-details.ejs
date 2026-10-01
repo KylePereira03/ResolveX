@@ -31,6 +31,8 @@
   <tr><th>Admin Response</th><td><%= complaint.admin_response || 'No response yet.' %></td></tr>
 </table>
 
-<p><a href="/student/complaints" class="btn">Back to My Complaints</a></p>
+<%- include('../partials/comments', { comments: comments, commentActionUrl: `/student/complaints/${complaint.id}/comments` }) %>
+
+<p><a href="/student/complaints" class="btn-secondary">Back to My Complaints</a></p>
 
 <%- include('../partials/footer') %>
