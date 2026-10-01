@@ -124,8 +124,9 @@ a {
 
 .footer {
   text-align: center;
-  padding: 20px;
-  color: var(--stone);
+  padding: 16px;
+  color: var(--white);
+  background: #2A333F;
   font-size: 0.82rem;
   border-top: 1px solid var(--stone-light);
 }
@@ -260,7 +261,7 @@ tbody tr:last-child td {
   font-size: 0.85rem;
   text-align: center;
   vertical-align: middle;
-  background: var(--gold-tint);
+  background: var(--clay-tint);
   border-bottom: 1px solid #EDEAE3;
 }
 
@@ -331,7 +332,7 @@ tbody tr:last-child td {
   flex-wrap: wrap;
   background: var(--white);
   padding: 18px;
-  border-left: 3px solid var(--stone-light);
+  border-left: 3px solid var(--stone);
   margin-bottom: 20px;
 }
 
@@ -411,7 +412,7 @@ tbody tr:last-child td {
 
 .comment {
   background: var(--white);
-  border-left: 3px solid var(--stone-light);
+  border-left: 3px solid var(--stone);
   padding: 12px 16px;
   margin-bottom: 10px;
 }
@@ -432,7 +433,6 @@ tbody tr:last-child td {
 .comment-role {
   color: var(--stone);
   font-size: 0.78rem;
-  text-transform: lowercase;
 }
 
 .comment-date {
@@ -459,7 +459,7 @@ tbody tr:last-child td {
 }
 
 .update-panel {
-  background: var(--clay-tint);
+  background: var(--gold-tint);
   border-left: 3px solid var(--clay);
   padding: var(--sp-4);
   margin-bottom: var(--sp-5);
