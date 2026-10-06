@@ -48,7 +48,7 @@ h1, h2, h3 {
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--ink);
-  margin: 0 0 20px;
+  margin: 0 0 8px;
 }
 
 h1 { font-size: 2rem; }
@@ -199,13 +199,13 @@ a {
 .btn-secondary {
   background: transparent;
   color: var(--ink);
-  border-color: var(--stone-light);
+  border-color: var(--stone);
   padding: 9px 19px; /* 1px less to compensate for the visible border */
 }
 
 .btn-secondary:hover {
-  background: var(--paper);
-  border-color: var(--stone);
+  color: var(--ink);
+  border-color: var(--ink);
 }
 
 .alert {
@@ -260,12 +260,12 @@ tbody tr:last-child td {
 .detail-table th {
   width: 160px;
   padding: 12px 14px;
-  color: var(--stone);
+  color: var(--ink);
   font-weight: 500;
   font-size: 0.85rem;
   text-align: center;
   vertical-align: middle;
-  background: var(--clay-tint);
+  background: var(--stone-light);
   border-bottom: 1px solid #EDEAE3;
 }
 

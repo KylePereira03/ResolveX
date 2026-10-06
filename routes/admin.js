@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
-const { requireAdmin, getDepartmentFilter } = require('../middleware/auth');
+const bcrypt = require('bcrypt');
+const { requireAdmin, requireSuperAdmin, getDepartmentFilter } = require('../middleware/auth');
 const pool = require('../db');
 const router = express.Router();
 
@@ -284,5 +285,78 @@ router.get('/complaints/:id/attachment', async (req, res) => {
     res.status(500).render('error', { title: 'Error', message: 'Could not download the file.' });
   }
 });
+
+// List all admins + the create form (super admin only)
+router.get('/manage/admins', requireSuperAdmin, async (req, res) => {
+  try {
+    const admins = await pool.query(
+      `SELECT full_name, email, department, admin_level
+       FROM users
+       WHERE role = 'admin'
+       ORDER BY admin_level DESC, department ASC NULLS FIRST`
+    );
+    const categories = await pool.query('SELECT id, name FROM categories WHERE active = true ORDER BY name');
+
+    res.render('admin/manage-admins', {
+      admins: admins.rows,
+      categories: categories.rows,
+      message: req.query.created === '1' ? { type: 'success', text: 'Admin created successfully.' } : null,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).render('error', { title: 'Error', message: 'Could not load admins.' });
+  }
+});
+
+// Create a new department admin (super admin only)
+router.post('/manage/admins', requireSuperAdmin, async (req, res) => {
+  const { full_name, email: rawEmail, department, password } = req.body;
+  const email = rawEmail ? rawEmail.trim().toLowerCase() : '';
+
+  const categories = await pool.query('SELECT id, name FROM categories WHERE active = true ORDER BY name');
+
+  if (!full_name || !email || !department || !password) {
+    return renderManageError(req, res, categories.rows, 'All fields are required.');
+  }
+  if (password.length < 6) {
+    return renderManageError(req, res, categories.rows, 'Password must be at least 6 characters.');
+  }
+
+  try {
+    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (existing.rows.length > 0) {
+      return renderManageError(req, res, categories.rows, 'That email is already in use.');
+    }
+
+    const password_hash = await bcrypt.hash(password, 10);
+
+    await pool.query(
+      `INSERT INTO users (full_name, email, password_hash, role, department, admin_level)
+       VALUES ($1, $2, $3, 'admin', $4, 'department')`,
+      [full_name, email, password_hash, department]
+    );
+
+    res.redirect('/admin/manage/admins?created=1');
+  } catch (err) {
+    console.error(err);
+    renderManageError(req, res, categories.rows, 'Something went wrong. Please try again.');
+  }
+});
+
+// Helper for re-rendering the manage-admins page with an error
+async function renderManageError(req, res, categoriesRows, text) {
+  const admins = await pool.query(
+    `SELECT full_name, email, department, admin_level
+     FROM users
+     WHERE role = 'admin'
+     ORDER BY admin_level DESC, department ASC NULLS FIRST`
+  );
+  res.render('admin/manage-admins', {
+    admins: admins.rows,
+    categories: categoriesRows,
+    message: { type: 'error', text },
+    formData: req.body,
+  });
+}
 
 module.exports = router;

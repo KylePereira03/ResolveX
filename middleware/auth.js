@@ -45,4 +45,18 @@ function getDepartmentFilter(adminUser, startingParamIndex) {
   };
 }
 
-module.exports = { requireLogin, requireStudent, requireAdmin, getDepartmentFilter };
+// Must be logged in specifically as a super admin
+function requireSuperAdmin(req, res, next) {
+  if (!req.session.user) {
+    return res.redirect('/admin/login');
+  }
+  if (req.session.user.role !== 'admin' || req.session.user.admin_level !== 'super') {
+    return res.status(403).render('error', {
+      title: 'Access Denied',
+      message: 'This page is only available to super admins.',
+    });
+  }
+  next();
+}
+
+module.exports = { requireLogin, requireStudent, requireAdmin, requireSuperAdmin, getDepartmentFilter };

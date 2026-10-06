@@ -9,6 +9,9 @@
       <% } else if (user.role === 'admin') { %>
         <a href="/admin/dashboard">Dashboard</a>
         <a href="/admin/complaints">All Complaints</a>
+        <% if (user.admin_level === 'super') { %>
+          <a href="/admin/manage/admins">Manage Admins</a>
+        <% } %>
       <% } %>
       <span class="navbar-user">Hi, <%= user.full_name %></span>
       <form action="/logout" method="POST" class="navbar-logout" onsubmit="return confirm('Are you sure you want to log out?');">

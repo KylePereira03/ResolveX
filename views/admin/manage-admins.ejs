@@ -1,0 +1,63 @@
+<%- include('../partials/header', { title: 'Manage Admins' }) %>
+<%- include('../partials/messages', { message: typeof message !== 'undefined' ? message : null }) %>
+
+<h1>Manage Admins</h1>
+
+<table>
+  <thead>
+    <tr><th>Name</th><th>Email</th><th>Level</th><th>Department</th></tr>
+  </thead>
+  <tbody>
+    <% admins.forEach(a => { %>
+      <tr>
+        <td data-label="Name"><%= a.full_name %></td>
+        <td data-label="Email"><%= a.email %></td>
+        <td data-label="Level">
+          <% if (a.admin_level === 'super') { %>
+            <span class="dept-badge dept-super">Super Admin</span>
+          <% } else { %>
+            <span class="dept-badge">Department</span>
+          <% } %>
+        </td>
+        <td data-label="Department"><%= a.department || '—' %></td>
+      </tr>
+    <% }) %>
+  </tbody>
+</table>
+
+<h2>Create a New Department Admin</h2>
+
+<form action="/admin/manage/admins" method="POST">
+  <div class="form-group">
+    <label for="full_name">Full Name</label>
+    <input type="text" id="full_name" name="full_name"
+      value="<%= typeof formData !== 'undefined' ? formData.full_name : '' %>" required>
+  </div>
+
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email"
+      value="<%= typeof formData !== 'undefined' ? formData.email : '' %>" required>
+  </div>
+
+  <div class="form-group">
+    <label for="department">Department</label>
+    <select id="department" name="department" required>
+      <option value="">-- Select a department --</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat.name %>" <%= (typeof formData !== 'undefined' && formData.department === cat.name) ? 'selected' : '' %>>
+          <%= cat.name %>
+        </option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="password">Temporary Password</label>
+    <input type="password" id="password" name="password" required minlength="6">
+  </div>
+
+  <button type="submit" class="btn">Create Admin</button>
+</form>
+
+<%- include('../partials/footer') %>
