@@ -136,7 +136,7 @@ router.post('/admin/login', async (req, res) => {
 
   try {
     const result = await pool.query(
-      `SELECT id, full_name, email, password_hash, role
+      `SELECT id, full_name, email, password_hash, role, department, admin_level
        FROM users WHERE email = $1 AND role = 'admin'`,
       [email]
     );
@@ -162,6 +162,8 @@ router.post('/admin/login', async (req, res) => {
       id: admin.id,
       full_name: admin.full_name,
       role: admin.role,
+      department: admin.department,
+      admin_level: admin.admin_level,
     };
 
     res.redirect('/admin/dashboard');

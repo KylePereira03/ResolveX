@@ -34,4 +34,15 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { requireLogin, requireStudent, requireAdmin };
+// Super admins get no restriction; department admins only see their own category.
+function getDepartmentFilter(adminUser, startingParamIndex) {
+  if (adminUser.admin_level === 'super') {
+    return { clause: '', values: [] };
+  }
+  return {
+    clause: `AND cat.name = $${startingParamIndex}`,
+    values: [adminUser.department],
+  };
+}
+
+module.exports = { requireLogin, requireStudent, requireAdmin, getDepartmentFilter };

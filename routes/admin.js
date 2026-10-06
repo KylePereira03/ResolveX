@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { requireAdmin } = require('../middleware/auth');
+const { requireAdmin, getDepartmentFilter } = require('../middleware/auth');
 const pool = require('../db');
 const router = express.Router();
 
@@ -9,8 +9,15 @@ router.use(requireAdmin);
 // Dashboard
 router.get('/dashboard', async (req, res) => {
   try {
+    const deptFilter = getDepartmentFilter(req.session.user, 1);
+
     const countsResult = await pool.query(
-      `SELECT status, COUNT(*) AS count FROM complaints GROUP BY status`
+      `SELECT c.status, COUNT(*) AS count
+       FROM complaints c
+       JOIN categories cat ON cat.id = c.category_id
+       WHERE 1=1 ${deptFilter.clause}
+       GROUP BY c.status`,
+      deptFilter.values
     );
     const counts = {};
     countsResult.rows.forEach(row => {
@@ -20,12 +27,19 @@ router.get('/dashboard', async (req, res) => {
     const recentResult = await pool.query(
       `SELECT c.id, c.title, c.status, u.full_name AS student_name
        FROM complaints c
+       JOIN categories cat ON cat.id = c.category_id
        JOIN users u ON u.id = c.student_id
+       WHERE 1=1 ${deptFilter.clause}
        ORDER BY c.created_at DESC
-       LIMIT 5`
+       LIMIT 5`,
+      deptFilter.values
     );
 
-    res.render('admin/dashboard', { counts, recentComplaints: recentResult.rows });
+    res.render('admin/dashboard', {
+      counts,
+      recentComplaints: recentResult.rows,
+      isSuperAdmin: req.session.user.admin_level === 'super',
+    });
   } catch (err) {
     console.error(err);
     res.status(500).render('error', { title: 'Error', message: 'Could not load the dashboard.' });
@@ -54,6 +68,10 @@ router.get('/complaints', async (req, res) => {
     if (category_id) {
       values.push(category_id);
       conditions.push(`c.category_id = $${values.length}`);
+    }
+    if (req.session.user.admin_level !== 'super') {
+      values.push(req.session.user.department);
+      conditions.push(`cat.name = $${values.length}`);
     }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -98,6 +116,16 @@ router.get('/complaints/:id', async (req, res) => {
       return res.status(404).render('error', { title: 'Not Found', message: 'That complaint does not exist.' });
     }
 
+    const complaint = complaintResult.rows[0];
+    const isSuperAdmin = req.session.user.admin_level === 'super';
+
+    if (!isSuperAdmin && complaint.category_name !== req.session.user.department) {
+      return res.status(403).render('error', {
+        title: 'Access Denied',
+        message: 'This complaint belongs to a different department.',
+      });
+    }
+
     const historyResult = await pool.query(
       `SELECT h.*, u.full_name AS changed_by_name
        FROM complaint_history h
@@ -117,7 +145,7 @@ router.get('/complaints/:id', async (req, res) => {
     );
 
     res.render('admin/complaint-details', {
-      complaint: complaintResult.rows[0],
+      complaint,
       history: historyResult.rows,
       comments: commentsResult.rows,
       message: req.query.updated === '1' ? { type: 'success', text: 'Complaint updated successfully.' } : null,
@@ -139,9 +167,23 @@ router.post('/complaints/:id/comments', async (req, res) => {
   }
 
   try {
-    const exists = await pool.query('SELECT id FROM complaints WHERE id = $1', [complaintId]);
+    const exists = await pool.query(
+      `SELECT c.id, cat.name AS category_name
+       FROM complaints c
+       JOIN categories cat ON cat.id = c.category_id
+       WHERE c.id = $1`,
+      [complaintId]
+    );
     if (exists.rows.length === 0) {
       return res.status(404).render('error', { title: 'Not Found', message: 'That complaint does not exist.' });
+    }
+
+    const isSuperAdmin = req.session.user.admin_level === 'super';
+    if (!isSuperAdmin && exists.rows[0].category_name !== req.session.user.department) {
+      return res.status(403).render('error', {
+        title: 'Access Denied',
+        message: 'This complaint belongs to a different department.',
+      });
     }
 
     await pool.query(
@@ -170,10 +212,24 @@ router.post('/complaints/:id/update', async (req, res) => {
 
   try {
     // Get the current status first, so we know if it's actually changing
-    const current = await pool.query('SELECT status FROM complaints WHERE id = $1', [complaintId]);
+    const current = await pool.query(
+      `SELECT c.status, cat.name AS category_name
+       FROM complaints c
+       JOIN categories cat ON cat.id = c.category_id
+       WHERE c.id = $1`,
+      [complaintId]
+    );
 
     if (current.rows.length === 0) {
       return res.status(404).render('error', { title: 'Not Found', message: 'That complaint does not exist.' });
+    }
+
+    const isSuperAdmin = req.session.user.admin_level === 'super';
+    if (!isSuperAdmin && current.rows[0].category_name !== req.session.user.department) {
+      return res.status(403).render('error', {
+        title: 'Access Denied',
+        message: 'This complaint belongs to a different department.',
+      });
     }
 
     const oldStatus = current.rows[0].status;

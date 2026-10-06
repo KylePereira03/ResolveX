@@ -1,7 +1,14 @@
 <%- include('../partials/header', { title: 'Admin Dashboard' }) %>
 
 <h1>Admin Dashboard</h1>
-<p>Logged in as <%= user.full_name %></p>
+<p>
+  Logged in as <%= user.full_name %>
+  <% if (isSuperAdmin) { %>
+    <span class="dept-badge dept-super">Super Admin</span>
+  <% } else { %>
+    <span class="dept-badge"><%= user.department %></span>
+  <% } %>
+</p>
 
 <div class="stats-grid">
   <div class="stat-card">
