@@ -1,0 +1,96 @@
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
+const pool = require('./db');
+const authRoutes = require('./routes/auth');
+const studentRoutes = require('./routes/student');
+const adminRoutes = require('./routes/admin');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.set('view engine', 'ejs');
+app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+
+app.use(session({
+  store: new pgSession({
+    pool: pool,
+    tableName: 'session',
+    createTableIfMissing: true,
+  }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 8,
+    httpOnly: true,
+  },
+}));
+
+const {
+  LayoutDashboard,
+  PlusCircle,
+  ListChecks,
+  Users,
+  Menu,
+  X,
+  LogOut,
+} = require('lucide-static');
+
+const icons = {
+  dashboard: LayoutDashboard,
+  submit: PlusCircle,
+  list: ListChecks,
+  admins: Users,
+  menu: Menu,
+  close: X,
+  logout: LogOut,
+};
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.icon = (name) => {
+    const svg = icons[name];
+    if (!svg) return '';
+    // lucide-static returns a full <svg>; add our own class for sizing/color via CSS
+    return svg.replace('<svg ', '<svg class="icon" ');
+  };
+  next();
+});
+
+app.use('/', authRoutes);
+app.use('/student', studentRoutes);
+app.use('/admin', adminRoutes);
+
+app.get('/', (req, res) => {
+  if (req.session.user) {
+    if (req.session.user.role === 'admin') {
+      return res.redirect('/admin/dashboard');
+    }
+    return res.redirect('/student/dashboard');
+  }
+  res.render('home');
+});
+
+// Catch-all for unmatched routes — must be LAST
+app.use((req, res) => {
+  res.status(404).render('error', {
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist.',
+  });
+});
+
+// Global error handler — catches anything that slipped through
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).render('error', {
+    title: 'Something Went Wrong',
+    message: 'An unexpected error occurred. Please try again.',
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});

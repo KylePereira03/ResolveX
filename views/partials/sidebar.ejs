@@ -1,0 +1,85 @@
+<button class="mobile-topbar-toggle" id="sidebar-toggle" aria-label="Open navigation">
+  <%- icon('menu') %>
+</button>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <a href="/">
+      <span class="sidebar-brand-full">ResolveX</span>
+      <span class="sidebar-brand-short">R</span>
+    </a>
+    <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation">
+      <%- icon('close') %>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <% if (user.role === 'student') { %>
+      <a href="/student/dashboard" class="<%= activeNav === 'dashboard' ? 'active' : '' %>" data-tooltip="Dashboard">
+        <%- icon('dashboard') %><span class="sidebar-label">Dashboard</span>
+      </a>
+      <a href="/student/complaints/new" class="<%= activeNav === 'submit' ? 'active' : '' %>" data-tooltip="Submit Complaint">
+        <%- icon('submit') %><span class="sidebar-label">Submit Complaint</span>
+      </a>
+      <a href="/student/complaints" class="<%= activeNav === 'my-complaints' ? 'active' : '' %>" data-tooltip="My Complaints">
+        <%- icon('list') %><span class="sidebar-label">My Complaints</span>
+      </a>
+    <% } else if (user.role === 'admin') { %>
+      <a href="/admin/dashboard" class="<%= activeNav === 'dashboard' ? 'active' : '' %>" data-tooltip="Dashboard">
+        <%- icon('dashboard') %><span class="sidebar-label">Dashboard</span>
+      </a>
+      <a href="/admin/complaints" class="<%= activeNav === 'complaints' ? 'active' : '' %>" data-tooltip="All Complaints">
+        <%- icon('list') %><span class="sidebar-label">All Complaints</span>
+      </a>
+      <% if (user.admin_level === 'super') { %>
+        <a href="/admin/manage/admins" class="<%= activeNav === 'manage-admins' ? 'active' : '' %>" data-tooltip="Manage Admins">
+          <%- icon('admins') %><span class="sidebar-label">Manage Admins</span>
+        </a>
+      <% } %>
+    <% } %>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <span class="sidebar-user-name"><%= user.full_name %></span>
+      <% if (user.role === 'admin') { %>
+        <span class="sidebar-user-role">
+          <%= user.admin_level === 'super' ? 'Super Admin' : user.department %>
+        </span>
+      <% } %>
+    </div>
+    <form action="/logout" method="POST" onsubmit="return confirm('Are you sure you want to log out?');">
+      <button type="submit">
+        <%- icon('logout') %><span class="sidebar-label">Logout</span>
+      </button>
+    </form>
+  </div>
+</aside>
+
+<script>
+  (function () {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    const openBtn = document.getElementById('sidebar-toggle');
+    const closeBtn = document.getElementById('sidebar-close');
+
+    function openSidebar() {
+      sidebar.classList.add('sidebar-open');
+      overlay.classList.add('sidebar-overlay-visible');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('sidebar-open');
+      overlay.classList.remove('sidebar-overlay-visible');
+    }
+
+    openBtn.addEventListener('click', openSidebar);
+    closeBtn.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    window.addEventListener('resize', function () {
+      if (window.innerWidth >= 640) closeSidebar();
+    });
+  })();
+</script>

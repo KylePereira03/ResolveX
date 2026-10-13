@@ -1,0 +1,41 @@
+<%- include('../partials/header', { title: 'My Complaints', user: user, activeNav: 'my-complaints' }) %>
+
+<h1>My Complaints</h1>
+
+<div class="panel">
+  <% if (complaints.length === 0) { %>
+    <div class="empty-state">
+      <p>You haven't submitted any complaints yet.</p>
+      <p><a href="/student/complaints/new" class="btn" style="margin-top: 12px;">Submit your first complaint</a></p>
+    </div>
+  <% } else { %>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="col-p1">ID</th>
+          <th class="col-p1">Title</th>
+          <th class="col-p2">Category</th>
+          <th class="col-p1">Status</th>
+          <th class="col-p3">Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% complaints.forEach(c => { %>
+          <tr onclick="window.location.href='/student/complaints/<%= c.id %>'">
+            <td class="mono col-p1">#<%= c.id %></td>
+            <td class="col-p1"><%= c.title %></td>
+            <td class="col-p2"><%= c.category_name %></td>
+            <td class="col-p1">
+              <span class="status-badge status-<%= c.status.toLowerCase().replace(/ /g, '-') %>">
+                <%= c.status %>
+              </span>
+            </td>
+            <td class="mono col-p3"><%= c.created_at.toLocaleDateString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

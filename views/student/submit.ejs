@@ -1,0 +1,41 @@
+<%- include('../partials/header', { title: 'Submit Complaint', user: user, activeNav: 'submit' }) %>
+<%- include('../partials/messages', { message: typeof message !== 'undefined' ? message : null }) %>
+
+<h1>Submit a Complaint</h1>
+<p class="page-sub">Tell us what's wrong — we'll route it to the right department.</p>
+
+<div class="panel form-narrow" style="padding: var(--sp-4);">
+  <form action="/student/complaints" method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="category_id">Category</label>
+      <select id="category_id" name="category_id" required>
+        <option value="">-- Select a category --</option>
+        <% categories.forEach(cat => { %>
+          <option value="<%= cat.id %>" <%= (typeof formData !== 'undefined' && formData.category_id == cat.id) ? 'selected' : '' %>>
+            <%= cat.name %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" maxlength="200"
+        value="<%= typeof formData !== 'undefined' ? formData.title : '' %>" required>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="6" required><%= typeof formData !== 'undefined' ? formData.description : '' %></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="attachment">Attachment (optional — JPG, PNG, PDF, or Word, max 5MB)</label>
+      <input type="file" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+    </div>
+
+    <button type="submit" class="btn">Submit Complaint</button>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

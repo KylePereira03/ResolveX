@@ -1,0 +1,77 @@
+<%- include('../partials/header', { title: 'All Complaints', user: user, activeNav: 'complaints' }) %>
+
+<h1>All Complaints</h1>
+
+<form action="/admin/complaints" method="GET" class="filter-form">
+  <div class="form-group">
+    <label for="search">Search (title)</label>
+    <input type="text" id="search" name="search" value="<%= filters.search %>">
+  </div>
+
+  <div class="form-group">
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="">All</option>
+      <% ['Submitted', 'Under Review', 'In Progress', 'Resolved'].forEach(s => { %>
+        <option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="category_id">Category</label>
+    <select id="category_id" name="category_id">
+      <option value="">All</option>
+      <% categories.forEach(cat => { %>
+        <option value="<%= cat.id %>" <%= filters.category_id == cat.id ? 'selected' : '' %>><%= cat.name %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <button type="submit" class="btn">Apply Filters</button>
+  <a href="/admin/complaints" class="btn-secondary">Clear Filters</a>
+</form>
+
+<div class="panel">
+  <div class="panel-header">
+    <h2>Complaints</h2>
+    <span class="page-sub" style="margin: 0;"><%= complaints.length %> found</span>
+  </div>
+
+  <% if (complaints.length === 0) { %>
+    <div class="empty-state">
+      <p>No complaints match your filters. Try adjusting or clearing them above.</p>
+    </div>
+  <% } else { %>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="col-p1">ID</th>
+          <th class="col-p1">Title</th>
+          <th class="col-p3">Student</th>
+          <th class="col-p2">Category</th>
+          <th class="col-p1">Status</th>
+          <th class="col-p2">Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% complaints.forEach(c => { %>
+          <tr onclick="window.location.href='/admin/complaints/<%= c.id %>'">
+            <td class="mono col-p1">#<%= c.id %></td>
+            <td class="col-p1"><%= c.title %></td>
+            <td class="col-p3"><%= c.student_name %></td>
+            <td class="col-p2"><%= c.category_name %></td>
+            <td class="col-p1">
+              <span class="status-badge status-<%= c.status.toLowerCase().replace(/ /g, '-') %>">
+                <%= c.status %>
+              </span>
+            </td>
+            <td class="mono col-p2"><%= c.created_at.toLocaleDateString() %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,65 @@
+<%- include('../partials/header', { title: 'Dashboard', user: user, activeNav: 'dashboard' }) %>
+
+<h1>Welcome, <%= user.full_name %></h1>
+<p class="page-sub">Here's where things stand with your complaints.</p>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-number mono"><%= counts.Submitted || 0 %></div>
+    <div class="stat-label">Submitted</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number mono"><%= counts['Under Review'] || 0 %></div>
+    <div class="stat-label">Under Review</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number mono"><%= counts['In Progress'] || 0 %></div>
+    <div class="stat-label">In Progress</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number mono"><%= counts.Resolved || 0 %></div>
+    <div class="stat-label">Resolved</div>
+  </div>
+</div>
+
+<p><a href="/student/complaints/new" class="btn">Submit a New Complaint</a></p>
+
+<div class="panel">
+  <div class="panel-header">
+    <h2>Recent Complaints</h2>
+    <% if (recentComplaints.length > 0) { %>
+      <a href="/student/complaints" class="btn-secondary">View All</a>
+    <% } %>
+  </div>
+
+  <% if (recentComplaints.length === 0) { %>
+    <div class="empty-state">
+      <p>No complaints yet.</p>
+    </div>
+  <% } else { %>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th class="col-p1">ID</th>
+          <th class="col-p1">Title</th>
+          <th class="col-p1">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% recentComplaints.forEach(c => { %>
+          <tr onclick="window.location.href='/student/complaints/<%= c.id %>'">
+            <td class="mono col-p1">#<%= c.id %></td>
+            <td class="col-p1"><%= c.title %></td>
+            <td class="col-p1">
+              <span class="status-badge status-<%= c.status.toLowerCase().replace(/ /g, '-') %>">
+                <%= c.status %>
+              </span>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>

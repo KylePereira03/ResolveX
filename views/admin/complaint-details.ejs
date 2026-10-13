@@ -1,0 +1,88 @@
+<%- include('../partials/header', { title: 'Complaint #' + complaint.id, user: user, activeNav: 'complaints' }) %>
+
+<h1><%= complaint.title %></h1>
+<p class="page-sub">
+  <span class="status-badge status-<%= complaint.status.toLowerCase().replace(/ /g, '-') %>">
+    <%= complaint.status %>
+  </span>
+</p>
+
+<div class="panel">
+  <div class="panel-header">
+    <h2>Details</h2>
+  </div>
+  <table class="detail-table">
+    <tr><th>Complaint ID</th><td class="mono">#<%= complaint.id %></td></tr>
+    <tr><th>Student</th><td><%= complaint.student_name %> (<%= complaint.student_email %>, ID: <%= complaint.student_id_number %>)</td></tr>
+    <tr><th>Category</th><td><%= complaint.category_name %></td></tr>
+    <tr><th>Description</th><td><%= complaint.description %></td></tr>
+    <tr>
+      <th>Attachment</th>
+      <td>
+        <% if (complaint.attachment_path) { %>
+          <a href="/admin/complaints/<%= complaint.id %>/attachment"><%= complaint.attachment_original_name %></a>
+        <% } else { %>
+          No attachment.
+        <% } %>
+      </td>
+    </tr>
+    <tr><th>Submitted</th><td class="mono"><%= complaint.created_at.toLocaleString() %></td></tr>
+    <tr><th>Last Updated</th><td class="mono"><%= complaint.updated_at.toLocaleString() %></td></tr>
+    <tr><th>Admin Response</th><td><%= complaint.admin_response || 'No response yet.' %></td></tr>
+  </table>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <h2>History</h2>
+  </div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th class="col-p3">Date</th>
+        <th class="col-p3">Changed By</th>
+        <th class="col-p1">Status Change</th>
+        <th class="col-p1">Comment</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% history.forEach(h => { %>
+        <tr>
+          <td class="mono col-p3"><%= h.created_at.toLocaleString() %></td>
+          <td class="col-p3"><%= h.changed_by_name %></td>
+          <td class="col-p1"><%= h.old_status ? h.old_status + ' → ' + h.new_status : h.new_status + ' (created)' %></td>
+          <td class="col-p1"><%= h.comment || '—' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<div class="update-panel">
+  <h2>Update This Complaint</h2>
+  <%- include('../partials/messages', { message: typeof message !== 'undefined' ? message : null }) %>
+
+  <form action="/admin/complaints/<%= complaint.id %>/update" method="POST">
+    <div class="form-group">
+      <label for="status">Status</label>
+      <select id="status" name="status" required>
+        <% ['Submitted', 'Under Review', 'In Progress', 'Resolved'].forEach(s => { %>
+          <option value="<%= s %>" <%= complaint.status === s ? 'selected' : '' %>><%= s %></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="admin_response">Admin Response</label>
+      <textarea id="admin_response" name="admin_response" rows="4"><%= complaint.admin_response || '' %></textarea>
+    </div>
+
+    <button type="submit" class="btn">Save Update</button>
+  </form>
+</div>
+
+<%- include('../partials/comments', { comments: comments, commentActionUrl: `/admin/complaints/${complaint.id}/comments` }) %>
+
+<p><a href="/admin/complaints" class="btn-secondary">Back to All Complaints</a></p>
+
+<%- include('../partials/footer') %>

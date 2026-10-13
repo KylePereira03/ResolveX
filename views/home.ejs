@@ -1,0 +1,82 @@
+<%- include('partials/guest-header', { title: 'ResolveX' }) %>
+
+<section class="home-hero">
+  <h1>The paper complaint form, finally retired.</h1>
+  <p class="home-hero-sub">
+    ResolveX gives students one place to raise an issue and administrators
+    one place to resolve it — no forms, no front-desk queues, no guessing
+    where things stand.
+  </p>
+  <div class="hero-actions">
+    <a href="/register" class="btn">Register as a Student</a>
+    <a href="/login">Already have an account? Log in</a>
+  </div>
+</section>
+
+<section class="home-steps">
+  <p class="home-section-label">How it works</p>
+  <div class="home-steps-grid">
+    <div class="home-step">
+      <span class="home-step-number">01</span>
+      <h3>Submit</h3>
+      <p>Pick a category, describe the issue, attach a photo or document if it helps. Takes under a minute.</p>
+    </div>
+    <div class="home-step">
+      <span class="home-step-number">02</span>
+      <h3>Route</h3>
+      <p>Your complaint goes straight to the right department — Hostel, IT, Academics, wherever it belongs.</p>
+    </div>
+    <div class="home-step">
+      <span class="home-step-number">03</span>
+      <h3>Resolve</h3>
+      <p>An administrator responds directly on your complaint. You see every update the moment it happens.</p>
+    </div>
+  </div>
+</section>
+
+<section class="home-pipeline">
+  <p class="home-section-label">Every complaint, tracked end to end</p>
+  <div class="home-pipeline-track">
+    <div class="home-pipeline-stage">
+      <span class="status-badge status-submitted">Submitted</span>
+      <p>Logged the moment you hit submit</p>
+    </div>
+    <div class="home-pipeline-arrow">→</div>
+    <div class="home-pipeline-stage">
+      <span class="status-badge status-under-review">Under Review</span>
+      <p>An administrator has seen it</p>
+    </div>
+    <div class="home-pipeline-arrow">→</div>
+    <div class="home-pipeline-stage">
+      <span class="status-badge status-in-progress">In Progress</span>
+      <p>Being actively worked on</p>
+    </div>
+    <div class="home-pipeline-arrow">→</div>
+    <div class="home-pipeline-stage">
+      <span class="status-badge status-resolved">Resolved</span>
+      <p>Closed, with a response from admin</p>
+    </div>
+  </div>
+</section>
+
+<section class="home-departments">
+  <p class="home-section-label">Covers every department</p>
+  <div class="home-dept-chips">
+    <span class="home-dept-chip">Academics</span>
+    <span class="home-dept-chip">Infrastructure</span>
+    <span class="home-dept-chip">IT / Technical</span>
+    <span class="home-dept-chip">Hostel</span>
+    <span class="home-dept-chip">Library</span>
+    <span class="home-dept-chip">Administration</span>
+    <span class="home-dept-chip">Other</span>
+  </div>
+</section>
+
+<section class="home-cta">
+  <h2>Stop writing it on paper.</h2>
+  <p>Create a student account and submit your first complaint in under a minute.</p>
+  <a href="/register" class="btn">Register as a Student</a>
+  <p class="admin-link">Administrator? <a href="/admin/login">Log in here</a>.</p>
+</section>
+
+<%- include('partials/guest-footer') %>

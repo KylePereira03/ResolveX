@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title : 'ResolveX' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <nav class="guest-nav">
+    <a href="/" class="guest-brand">ResolveX</a>
+
+    <div class="guest-nav-links">
+      <a href="/login">Student Login</a>
+      <a href="/admin/login">Admin Login</a>
+      <a href="/register">Register</a>
+    </div>
+
+    <button class="guest-nav-toggle" id="guest-nav-toggle" aria-label="Open menu">
+      <%- icon('menu') %>
+    </button>
+  </nav>
+
+  <div class="guest-nav-dropdown" id="guest-nav-dropdown">
+    <a href="/login">Student Login</a>
+    <a href="/admin/login">Admin Login</a>
+    <a href="/register">Register</a>
+  </div>
+
+  <script>
+    (function () {
+      const toggle = document.getElementById('guest-nav-toggle');
+      const dropdown = document.getElementById('guest-nav-dropdown');
+      toggle.addEventListener('click', function () {
+        dropdown.classList.toggle('open');
+      });
+    })();
+  </script>
+
+  <main class="guest-container">

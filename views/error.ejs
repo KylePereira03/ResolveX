@@ -1,0 +1,15 @@
+<% if (typeof user !== 'undefined' && user) { %>
+  <%- include('partials/header', { title: title || 'Error', user: user, activeNav: '' }) %>
+<% } else { %>
+  <%- include('partials/guest-header', { title: title || 'Error' }) %>
+<% } %>
+
+<h1><%= title || 'Error' %></h1>
+<p><%= message %></p>
+<a href="/" class="btn">Go Home</a>
+
+<% if (typeof user !== 'undefined' && user) { %>
+  <%- include('partials/footer') %>
+<% } else { %>
+  <%- include('partials/guest-footer') %>
+<% } %>
